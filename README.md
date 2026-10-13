@@ -24,7 +24,7 @@ Video files (HLS, web videos, originals, captions, user exports) are stored in o
 | `REDIS_URL` | yes | `redis://[:password@]host:port[/db]` (`rediss://` for TLS). |
 | `ADMIN_EMAIL` | yes | Email address of the `root` administrator. |
 | `ADMIN_PASSWORD` | no | Initial `root` password. If not set, PeerTube generates one and prints it in the log on first start. |
-| `SECRET` | no | PeerTube secret (`openssl rand -hex 32`). If not set, one is derived from the database location and hostname. |
+| `SECRET` | no | PeerTube secret (`openssl rand -hex 32`). If not set, one is derived from the database password (rotating that password then changes the secret). Required when `DATABASE_URL` has no password. |
 | `INSTANCE_NAME` | no | Display name of the instance. |
 | `SIGNUP_ENABLED` | no | `true` to allow public registration (default `false`). |
 | `S3_ENDPOINT` | no | S3 endpoint, e.g. `https://<tenant>-<name>.minio-minio.auto.prod.osaas.io`. Enables object storage. |

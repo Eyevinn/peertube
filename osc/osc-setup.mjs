@@ -4,7 +4,7 @@
 // and logs to stderr. Any PEERTUBE_* variable that is already set wins over
 // the derived value, so every upstream option can still be overridden.
 
-import { createHash } from 'node:crypto'
+import { createHmac } from 'node:crypto'
 import { createRequire } from 'node:module'
 
 const env = process.env
@@ -71,11 +71,14 @@ if (env.PEERTUBE_SECRET) {
   // Already set, nothing to derive
 } else if (env.SECRET) {
   set('PEERTUBE_SECRET', env.SECRET)
+} else if (db.password) {
+  // Keyed by the database password so it is not guessable from public data.
+  // Stable across restarts, but changes if the database password is rotated.
+  log('WARNING: SECRET not set, deriving one from the database credentials')
+  const key = decodeURIComponent(db.password)
+  set('PEERTUBE_SECRET', createHmac('sha256', key).update(`peertube-osc:${publicHostname}`).digest('hex'))
 } else {
-  // Stable across restarts as long as the database location and hostname stay the same
-  log('WARNING: SECRET not set, deriving one from the database location and hostname')
-  const seed = `peertube-osc:${db.hostname}:${db.port}:${db.pathname}:${publicHostname}`
-  set('PEERTUBE_SECRET', createHash('sha256').update(seed).digest('hex'))
+  fail('SECRET must be set (generate one with: openssl rand -hex 32)')
 }
 
 // --- SMTP ------------------------------------------------------------------
